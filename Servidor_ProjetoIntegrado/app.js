@@ -13,7 +13,7 @@ app.get('/', (req, res) => {
 app.post('/leituras', (req, res) => {
     let valor = req.body.valor;
 
-    let resultado = execSync(`python IA_ProjetoIntegrado.py ${valor}`).toString().trim();
+    let resultado = execSync(`python ../IA_ProjetoIntegrado.py ${valor}`).toString().trim();
     let classificacao = parseInt(resultado);
 
     let leitura = {
