@@ -3,6 +3,7 @@ const { execSync } = require('child_process');
 
 const app = express();
 app.use(express.json()); 
+app.use(express.static(__dirname));
 
 let historico = [];
 
