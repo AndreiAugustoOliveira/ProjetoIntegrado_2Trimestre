@@ -7,6 +7,7 @@ Original file is located at
     https://colab.research.google.com/drive/1TsjqaHabz-X6NsHzoMZqVhSrx8azow75
 """
 
+import sys
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
@@ -39,41 +40,7 @@ X_treino, X_teste, y_treino, y_test = train_test_split(X, y, test_size=0.2)
 modelo = DecisionTreeClassifier()
 modelo.fit(X_treino, y_treino)
 
-predicoes_treino = modelo.predict(X_treino)
-acuracia_treino = accuracy_score(y_treino, predicoes_treino)
+valor_recebido = int(sys.argv[1])
+predicao = modelo.predict([[valor_recebido]])
 
-predicoes_teste = modelo.predict(X_teste)
-acuracia_teste = accuracy_score(y_test, predicoes_teste)
-
-print(f"Nota no treino (Simulado): {acuracia_treino * 100:.2f}%")
-print(f"Nota no teste (Prova Real): {acuracia_teste * 100:.2f}%")
-
-from sklearn.datasets import load_iris
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score
-
-iris = load_iris()
-X = iris.data
-y = iris.target
-test_size = 0.2
-
-X_treino, X_teste, y_treino, y_teste = train_test_split( X, y, test_size=test_size)
-
-# Árvore de decisão
-arvore = DecisionTreeClassifier()
-arvore.fit(X_treino, y_treino)
-
-pred = arvore.predict(X_teste)
-acc_arvore = accuracy_score(y_teste, pred)
-
-# KNN
-knn = KNeighborsClassifier()
-knn.fit(X_treino, y_treino)
-
-pred = knn.predict(X_teste)
-acc_knn = accuracy_score(y_teste, pred)
-
-print(f"Acurácia Árvore: {acc_arvore*100:.2f}%")
-print(f"Acurácia KNN: {acc_knn*100:.2f}%")
+print(predicao[0])
