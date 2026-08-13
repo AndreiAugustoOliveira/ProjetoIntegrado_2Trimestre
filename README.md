@@ -17,5 +17,5 @@ Projeto desenvolvido durante o **2° trimestre**, reunindo os conhecimentos e co
 - Stm 32
 - Html e css
 - Js
-- Putty
+- PuTTY
 
