@@ -53,10 +53,13 @@ UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
 uint32_t adc_value;
-uint32_t buffer[5] = {0}; // buffer pro filtro de média móvel
+uint32_t buffer[5] = {0};
 int idx = 0;
-char msg[32];
-uint32_t ultimo_valor_valido = 0; // guarda a última leitura boa
+uint32_t ultimo_valor_valido = 0;
+char msg[128];
+
+uint32_t sequencia = 0;
+uint8_t filtro_ativo = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -117,22 +120,37 @@ int main(void)
 	  HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
 	  adc_value = HAL_ADC_GetValue(&hadc1);
 
-	  if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_10)==GPIO_PIN_RESET)
+	  if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_10) == GPIO_PIN_RESET)
 	  {
-	      buffer[idx]=adc_value;
-	      idx=(idx+1)%5;
+	      filtro_ativo = 1;
 
-	      uint32_t soma=0;
+	      buffer[idx] = adc_value;
+	      idx = (idx + 1) % 5;
 
-	      for(int i=0;i<5;i++)
-	          soma+=buffer[i];
+	      uint32_t soma = 0;
 
-	      adc_value=soma/5;
+	      for (int i = 0; i < 5; i++)
+	      {
+	          soma += buffer[i];
+	      }
+
+	      adc_value = soma / 5;
+	  }
+	  else
+	  {
+	      filtro_ativo = 0;
 	  }
 
-	  sprintf(msg,"%lu\r\n",adc_value);
+	  float tensao = ((float)adc_value * 3.3f) / 4095.0f;
 
-	  while(CDC_Transmit_FS((uint8_t*)msg,strlen(msg))==USBD_BUSY);
+	  sequencia++;
+
+	  sprintf(msg, "@V1|ADC|SEQ=%06lu|VAL=%lu|FILTRO=%d|TENS=%.3f|STATUS=OK\r\n",sequencia,adc_value, filtro_ativo, tensao);
+
+	  while (CDC_Transmit_FS((uint8_t*)msg, strlen(msg)) == USBD_BUSY)
+	  {
+	      HAL_Delay(1);
+	  }
 
 	  HAL_Delay(1000);
 
