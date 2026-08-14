@@ -37,8 +37,7 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 #define VALOR_MIN 0
-#define VALOR_MAX 4095   // equivalente aos 0-5V (ou 0-3.3V, depende da faixa que vocês definirem)
-
+#define VALOR_MAX 4095
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -57,7 +56,6 @@ uint32_t buffer[5] = {0};
 int idx = 0;
 uint32_t ultimo_valor_valido = 0;
 char msg[128];
-
 uint32_t sequencia = 0;
 uint8_t filtro_ativo = 0;
 /* USER CODE END PV */
@@ -141,11 +139,11 @@ int main(void)
 	      filtro_ativo = 0;
 	  }
 
-	  float tensao = ((float)adc_value * 3.3f) / 4095.0f;
+	  uint32_t tensao_mV = ((adc_value * 3300UL) / 4095UL);
 
 	  sequencia++;
 
-	  sprintf(msg, "@V1|ADC|SEQ=%06lu|VAL=%lu|FILTRO=%d|TENS=%.3f|STATUS=OK\r\n",sequencia,adc_value, filtro_ativo, tensao);
+	  sprintf(msg,"@PI1|ADC|Q=%06lu|VAL=%lu|FILTRO=%d|TENS=%lu.%03lu|STATUS=OK\r\n", sequencia,adc_value, filtro_ativo, tensao_mV / 1000, tensao_mV % 1000);
 
 	  while (CDC_Transmit_FS((uint8_t*)msg, strlen(msg)) == USBD_BUSY)
 	  {
