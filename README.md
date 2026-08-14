@@ -18,4 +18,5 @@ Projeto desenvolvido durante o **2° trimestre**, reunindo os conhecimentos e co
 - Html e css
 - Js
 - PuTTY
+- C#
 
