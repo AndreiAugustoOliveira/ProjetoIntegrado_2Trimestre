@@ -14,7 +14,7 @@ namespace ProjetoIntegrado
     
         static void Main()
         {
-           SerialPort porta = new SerialPort("COMX", 115200); 
+           SerialPort porta = new SerialPort("COM3", 115200); 
            porta.Open();
 
           HttpClient client = new HttpClient();
