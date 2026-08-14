@@ -7,10 +7,6 @@ app.use(express.static(__dirname));
 
 let historico = [];
 
-app.get('/', (req, res) => {
-    res.send('Servidor online');
-});
-
 app.post('/leituras', (req, res) => {
     let valor = req.body.valor;
 
