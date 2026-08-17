@@ -19,4 +19,6 @@ Projeto desenvolvido durante o **2° trimestre**, reunindo os conhecimentos e co
 - Js
 - PuTTY
 - C#
+- Postman
+- Visual code
 
