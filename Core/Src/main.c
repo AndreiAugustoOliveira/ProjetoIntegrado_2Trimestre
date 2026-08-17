@@ -21,7 +21,6 @@
 #include "main.h"
 #include "usb_device.h"
 #include "usbd_cdc_if.h"
-
 #include <stdio.h>
 #include <string.h>
 /* Private includes ----------------------------------------------------------*/
@@ -38,6 +37,9 @@
 /* USER CODE BEGIN PD */
 #define VALOR_MIN 0
 #define VALOR_MAX 4095
+
+#define b1_PIN GPIO_PIN_10
+#define b1_PORT GPIOA
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -118,7 +120,7 @@ int main(void)
 	  HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
 	  adc_value = HAL_ADC_GetValue(&hadc1);
 
-	  if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_10) == GPIO_PIN_RESET)
+	  if (HAL_GPIO_ReadPin(b1_PORT, b1_PIN) == GPIO_PIN_RESET)
 	  {
 	      filtro_ativo = 1;
 
@@ -139,11 +141,9 @@ int main(void)
 	      filtro_ativo = 0;
 	  }
 
-	  uint32_t tensao_mV = ((adc_value * 3300UL) / 4095UL);
-
 	  sequencia++;
 
-	  sprintf(msg,"@PI1|ADC|Q=%06lu|VAL=%lu|FILTRO=%d|TENS=%lu.%03lu|STATUS=OK\r\n", sequencia,adc_value, filtro_ativo, tensao_mV / 1000, tensao_mV % 1000);
+	  sprintf(msg, "@PI2|ADC_VAL=%lu|F=%d\r\n",adc_value,filtro_ativo);
 
 	  while (CDC_Transmit_FS((uint8_t*)msg, strlen(msg)) == USBD_BUSY)
 	  {
@@ -299,7 +299,7 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin : b1_Pin */
   GPIO_InitStruct.Pin = b1_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(b1_GPIO_Port, &GPIO_InitStruct);
 
 }
