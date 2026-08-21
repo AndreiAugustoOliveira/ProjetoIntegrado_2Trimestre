@@ -58,7 +58,7 @@ uint32_t buffer[5] = {0};
 int idx = 0;
 uint32_t ultimo_valor_valido = 0;
 char msg[128];
-uint32_t sequencia = 0;
+
 uint8_t filtro_ativo = 0;
 /* USER CODE END PV */
 
@@ -141,7 +141,6 @@ int main(void)
 	      filtro_ativo = 0;
 	  }
 
-	  sequencia++;
 
 	  sprintf(msg, "@PI2|ADC_VAL=%lu|F=%d\r\n",adc_value,filtro_ativo);
 

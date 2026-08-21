@@ -4,23 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Monitoramento</title>
+    <title>Monitoramento de Tensão</title>
 
     <style>
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: Arial, sans-serif;
+            font-family: Inter, sans-serif;
         }
 
         body {
-            background: #f2f4f7;
+            background: linear-gradient(15deg, #fff7ed 0%, #1e293b 100%);
             color: #222;
+            min-height: 100vh;
         }
 
         header {
-            background: #1e293b;
+            background:  #010c1f 90%;
             color: white;
             padding: 25px;
             text-align: center;
@@ -63,6 +64,12 @@
         .valor {
             font-size: 40px;
             font-weight: bold;
+        }
+
+        .unidade {
+            font-size: 22px;
+            color: #64748b;
+            margin-left: 5px;
         }
 
         .classificacao {
@@ -123,61 +130,76 @@
 <body>
 
     <header>
-        <h1>Monitoramento de Leituras</h1>
-        <p>Sistema de aquisição, processamento e classificação</p>
+        <h1>Monitoramento de Tensão ADC </h1>
+        <p>
+            Sistema de aquisição, processamento e classificação de tensão ADC de um stm32
+        </p>
     </header>
 
     <main>
 
         <div class="cards">
 
+            <!-- TENSÃO ATUAL -->
             <div class="card">
-                <h2>Leitura atual</h2>
-                <div class="valor" id="valorAtual">
-                    --
+                <h2>Tensão atual</h2>
+
+                <div class="valor">
+                    <span id="valorAtual">--</span>
+                    <span class="unidade">mV</span>
                 </div>
             </div>
 
+            <!-- TIPO DE TENSÃO -->
             <div class="card">
-                <h2>Classificação</h2>
+                <h2>Estado da tensão</h2>
+
                 <div class="classificacao" id="classificacao">
                     --
                 </div>
             </div>
 
+            <!-- ESTADO -->
             <div class="card">
                 <h2>Estado do sistema</h2>
-                <div class="status" id="status">
-                    Aguardando
+
+               <div class="status" id="status">
+                 Aguardando
                 </div>
 
-                <p id="horario" style="margin-top: 15px; color: #64748b;">
-                    Nenhuma leitura recebida
+                <p id="horario" style="margin-top: 10px; color: #64748b;">
+                  Nenhuma tensão recebida
                 </p>
             </div>
 
         </div>
 
+        <!-- HISTÓRICO -->
         <div class="historico-container">
 
-            <h2>Histórico de leituras</h2>
+            <h2>Histórico de medições de tensão</h2>
 
             <table>
+
                 <thead>
                     <tr>
-                        <th>Valor</th>
-                        <th>Classificação</th>
+                        <th>Tensão (mV)</th>
+                        <th>Tipo de tensão</th>
+                        <th>Filtro</th>
                         <th>Data e hora</th>
                     </tr>
                 </thead>
 
                 <tbody id="tabelaHistorico">
+
                     <tr>
-                        <td colspan="3" class="sem-dados">
-                            Aguardando leituras...
+                        <td colspan="4" class="sem-dados">
+                            Aguardando medições de tensão...
                         </td>
                     </tr>
+
                 </tbody>
+
             </table>
 
         </div>
@@ -186,6 +208,30 @@
 
     <script>
 
+        /*
+         * Converte a classificação enviada pela IA
+         * em uma descrição clara para o usuário.
+         */
+        function traduzirClassificacao(classificacao) {
+
+            const valor = Number(classificacao);
+
+            if (valor === 0) {
+                return "Tensão baixa";
+            }
+
+            if (valor === 1) {
+                return "Tensão adequada";
+            }
+
+            if (valor === 2) {
+                return "Tensão alta";
+            }
+
+            return "Tipo desconhecido";
+        }
+
+
         async function atualizarDados() {
 
             try {
@@ -193,54 +239,92 @@
                 const resposta = await fetch('/leituras');
 
                 if (!resposta.ok) {
-                    throw new Error('Nenhuma leitura disponível');
+                    throw new Error('Nenhuma medição disponível');
                 }
 
                 const dados = await resposta.json();
 
                 const atual = dados.atual;
 
-                // Leitura atual
+
+                // =========================
+                // TENSÃO ATUAL
+                // =========================
+
                 document.getElementById('valorAtual').textContent =
                     atual.valor;
 
-                // Classificação
-                document.getElementById('classificacao').textContent =
-                    atual.classificacao;
 
-                // Estado
+                // =========================
+                // TIPO DE TENSÃO
+                // =========================
+
+                document.getElementById('classificacao').textContent =
+                    traduzirClassificacao(atual.classificacao);
+
+
+                // =========================
+                // ESTADO DO SISTEMA
+                // =========================
+
                 document.getElementById('status').textContent =
                     'Online';
 
-                // Horário
+                // =========================
+                // HORÁRIO
+                // =========================
+
                 const data = new Date(atual.timestamp);
 
                 document.getElementById('horario').textContent =
-                    'Última atualização: ' +
+                    'Última medição: ' +
                     data.toLocaleString('pt-BR');
 
-                // Histórico
+
+                // =========================
+                // HISTÓRICO
+                // =========================
+
                 const tabela =
                     document.getElementById('tabelaHistorico');
 
                 tabela.innerHTML = '';
 
-                dados.historico.slice().reverse().forEach(leitura => {
 
-                    const linha = document.createElement('tr');
+                dados.historico
+                    .slice()
+                    .reverse()
+                    .forEach(leitura => {
 
-                    const dataLeitura =
-                        new Date(leitura.timestamp);
+                        const linha =
+                            document.createElement('tr');
 
-                    linha.innerHTML = `
-                        <td>${leitura.valor}</td>
-                        <td>${leitura.classificacao}</td>
-                        <td>${dataLeitura.toLocaleString('pt-BR')}</td>
-                    `;
+                        const dataLeitura =
+                            new Date(leitura.timestamp);
 
-                    tabela.appendChild(linha);
 
-                });
+                        linha.innerHTML = `
+                         <td>${leitura.valor} mV</td>
+
+                          <td>
+
+                      ${traduzirClassificacao(
+                         leitura.classificacao
+                     )}
+                   </td>
+
+                     <td>
+                        ${leitura.filtro === 1 ? 'Ligado' : 'Desligado'}
+                     </td>
+
+                        <td>
+                         ${dataLeitura.toLocaleString('pt-BR')}
+                           </td>
+                         `;
+                        tabela.appendChild(linha);
+
+                    });
+
 
             } catch (erro) {
 
@@ -251,8 +335,10 @@
 
         }
 
+
         // Atualiza imediatamente
         atualizarDados();
+
 
         // Atualiza a cada 2 segundos
         setInterval(atualizarDados, 2000);
@@ -261,3 +347,4 @@
 
 </body>
 </html>
+```
