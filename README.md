@@ -4,7 +4,7 @@ Projeto desenvolvido durante o **2° trimestre**, reunindo os conhecimentos e co
 
 ## 🎥 Link do vídeo
 
-[▶️ Clique aqui para assistir ao vídeo](COLE_AQUI_O_LINK_DO_VIDEO)
+[▶️ Clique aqui para assistir ao vídeo](https://www.youtube.com/watch?v=AgIPZbT3p7I)
 
 ## 👨‍💻 Tecnologias utilizadas
 
